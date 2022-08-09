@@ -1,0 +1,20 @@
+[package]
+name = "pirate-midi-rs"
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/beckler/pirate-midi-rs"
+repository = "https://github.com/beckler/pirate-midi-rs"
+description = "send serial commands to pirate midi bridge devices"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde-enum-str = "0.2"
+serde_bytes = "0.11"
+serde_json = "1.0"
+serde_with = "2.0"
+serialport = { version = "4.2", features = ["serde"] }
+thiserror = "1.0"
