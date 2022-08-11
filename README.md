@@ -28,3 +28,5 @@ Make sure your bridge device is connected via USB before running a command.
         Err(err) => panic!("unable to enter bootloader: {}", err),
     }
 ```
+
+Test
