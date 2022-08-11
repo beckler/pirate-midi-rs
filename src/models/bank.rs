@@ -103,23 +103,23 @@ pub enum SendMode {
 #[derive(Deserialize_enum_str, Serialize_enum_str, Debug, Clone, PartialEq)]
 pub enum Frequency {
     #[serde(rename = "1/4")]
-    SyncQuarter,
+    Quarter,
     #[serde(rename = "1/4T")]
-    SyncQuarterTriplet,
+    QuarterTriplet,
     #[serde(rename = "1/4.")]
-    SyncDottedQuarter,
+    DottedQuarter,
     #[serde(rename = "1/8")]
-    SyncEight,
+    Eight,
     #[serde(rename = "1/8T")]
-    SyncEightTriplet,
+    EightTriplet,
     #[serde(rename = "1/8.")]
-    SyncDottedEight,
+    DottedEight,
     #[serde(rename = "1/16")]
-    SyncSixteenth,
+    Sixteenth,
     #[serde(rename = "1/16T")]
-    SyncSixteenthTriple,
+    SixteenthTriple,
     #[serde(rename = "1/16.")]
-    SyncDottedSixteenth,
+    DottedSixteenth,
     #[serde(other)]
     Free(String),
 }

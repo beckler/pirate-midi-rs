@@ -101,15 +101,9 @@ impl Command {
     pub fn format(&self) -> Vec<String> {
         match self {
             Command::Check | Command::Reset => vec![format!("{self}")],
-            Command::Control(args) => match args {
-                _ => vec![format!("{self}"), format!("{args}")],
-            },
-            Command::DataRequest(args) => match args {
-                _ => vec![format!("{self}"), format!("{args}")],
-            },
-            Command::DataTransmitRequest(args) => match args {
-                _ => vec![format!("{self}"), format!("{args}")],
-            },
+            Command::Control(args) => vec![format!("{self}"), format!("{args}")],
+            Command::DataRequest(args) => vec![format!("{self}"), format!("{args}")],
+            Command::DataTransmitRequest(args) => vec![format!("{self}"), format!("{args}")],
         }
     }
 }
@@ -156,7 +150,7 @@ impl PirateMIDIDevice {
     /// However, this method exists for if this changes in the future.
     pub fn with_vendor_id(&self, vid: u16) -> PirateMIDIDevice {
         Self {
-            vid: vid,
+            vid,
             pid: self.pid,
             timeout: self.timeout,
             baud_rate: self.baud_rate,
@@ -168,7 +162,7 @@ impl PirateMIDIDevice {
     pub fn with_product_id(&self, pid: u16) -> PirateMIDIDevice {
         Self {
             vid: self.vid,
-            pid: pid,
+            pid,
             timeout: self.timeout,
             baud_rate: self.baud_rate,
         }
@@ -181,7 +175,7 @@ impl PirateMIDIDevice {
             vid: self.vid,
             pid: self.pid,
             timeout: self.timeout,
-            baud_rate: baud_rate,
+            baud_rate,
         }
     }
 
@@ -191,7 +185,7 @@ impl PirateMIDIDevice {
         Self {
             vid: self.vid,
             pid: self.pid,
-            timeout: timeout,
+            timeout,
             baud_rate: self.baud_rate,
         }
     }
@@ -207,7 +201,7 @@ impl PirateMIDIDevice {
                     // turn our commands into a series of commands
                     for (i, sub_cmd) in command.format().iter().enumerate() {
                         // clear buffer before we iterate
-                        if buffer.len() > 0 {
+                        if !buffer.is_empty() {
                             let _ = &buffer.clear();
                         }
 
@@ -251,16 +245,14 @@ impl PirateMIDIDevice {
                                         Err(err) => return Err(Error::JsonError(err)),
                                     }
                                 }
-                                Command::Control(subreq) => match subreq {
-                                    _ => {
-                                        let result = if trim_response(&buffer) == "ok" {
-                                            Ok(())
-                                        } else {
-                                            Err(Error::CommandError(trim_response(&buffer)))
-                                        };
-                                        Response::Control(result)
-                                    }
-                                },
+                                Command::Control(_) => {
+                                    let result = if trim_response(&buffer) == "ok" {
+                                        Ok(())
+                                    } else {
+                                        Err(Error::CommandError(trim_response(&buffer)))
+                                    };
+                                    Response::Control(result)
+                                }
                                 Command::DataRequest(subreq) => match subreq {
                                     DataRequestArgs::GlobalSettings => Response::DataRequest(
                                         DataRequestResponse::GlobalSettings(trim_response(&buffer)),
@@ -274,7 +266,7 @@ impl PirateMIDIDevice {
                                             ),
                                             Err(err) => return Err(Error::JsonError(err)),
                                         }
-                                    } // Response::DataRequest(trim_response(&buffer))
+                                    }
                                 },
                                 Command::DataTransmitRequest(_) => {
                                     Response::DataTransmit(trim_response(&buffer))
@@ -310,7 +302,7 @@ impl PirateMIDIDevice {
     }
 }
 
-fn trim_response(response: &String) -> String {
+fn trim_response(response: &str) -> String {
     response
         .trim_start_matches(char::is_numeric)
         .trim_start_matches(',')
