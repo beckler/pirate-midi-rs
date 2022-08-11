@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y pkg-config libusb-1.0-0-dev
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y pkg-config libudev-dev
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -42,7 +42,7 @@ jobs:
           package-name: release-please-action
       - uses: actions/checkout@v2
         if: ${{ steps.release.outputs.release_created }}
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y pkg-config libusb-1.0-0-dev
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y pkg-config libudev-dev
         if: ${{ steps.release.outputs.release_created }}
       - uses: actions-rs/toolchain@v1
         if: ${{ steps.release.outputs.release_created }}
