@@ -236,8 +236,8 @@ pub struct Footswitch {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BankSettings {
-    pub id: String,
-    pub name: String,
+    pub bank_id: String,
+    pub bank_name: String,
     pub bank_messages: MessageStack,
     pub exp_messages: Vec<MessageStack>,
     pub aux_messages: Vec<AuxMessages>,
