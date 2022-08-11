@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/beckler/pirate-midi-rs/compare/v0.1.0...v0.1.1) (2022-08-11)
+
+
+### Bug Fixes
+
+* forcing release ([350d580](https://github.com/beckler/pirate-midi-rs/commit/350d580164bbb43449e099dcdea3a37404e889c7))
+
 ## 0.1.0 (2022-08-11)
 
 
