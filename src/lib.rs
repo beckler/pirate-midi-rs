@@ -1,10 +1,10 @@
 use std::{fmt::Display, io::ErrorKind, time::Duration};
 
-pub use models::*;
+pub use messages::*;
 use serialport::{available_ports, SerialPortBuilder, SerialPortType};
 use thiserror::Error;
 
-pub mod models;
+pub mod messages;
 
 pub const VENDOR_ID: u16 = 0x0483;
 pub const PRODUCT_ID: u16 = 0x5740;
@@ -31,7 +31,7 @@ impl Display for DataTransmitRequestArgs {
     }
 }
 
-// Arguments for Data Requests (DREQ)
+/// Arguments for Data Requests (DREQ)
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum DataRequestArgs {
@@ -49,7 +49,7 @@ impl Display for DataRequestArgs {
     }
 }
 
-// Arguments for Control Requests (CTRL)
+/// Arguments for Control Requests (CTRL)
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum ControlArgs {
@@ -77,6 +77,7 @@ impl Display for ControlArgs {
     }
 }
 
+/// Commands to send to device
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Command {
@@ -121,6 +122,7 @@ impl Display for Command {
     }
 }
 
+/// Represents a Pirate MIDI serial client
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PirateMIDIDevice {
     vid: u16,
@@ -141,7 +143,7 @@ impl Default for PirateMIDIDevice {
 }
 
 impl PirateMIDIDevice {
-    /// Creates a new Pirate MIDI serial client
+    /// Creates a new serial client
     pub fn new() -> PirateMIDIDevice {
         Self::default()
     }
@@ -190,6 +192,7 @@ impl PirateMIDIDevice {
         }
     }
 
+    /// Send a specific command to a device via the current serial configuration
     pub fn send(&self, command: Command) -> Result<Response, Error> {
         match self.find_device() {
             Ok(device) => match device.open() {

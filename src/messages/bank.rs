@@ -249,7 +249,7 @@ pub struct BankSettings {
 mod tests {
     use std::{env, path::PathBuf};
 
-    use crate::models::bank::BankSettings;
+    use crate::messages::bank::BankSettings;
 
     #[test]
     fn test_parsing_bank_messages() {

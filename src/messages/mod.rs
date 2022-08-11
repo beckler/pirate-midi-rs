@@ -1,3 +1,5 @@
+//! Message models and types to send and recieve from the device
+
 pub mod bank;
 pub mod check;
 pub mod global;

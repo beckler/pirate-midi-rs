@@ -94,7 +94,7 @@ pub struct GlobalSettings {
 mod tests {
     use std::{env, path::PathBuf};
 
-    use crate::models::global::GlobalSettings;
+    use crate::messages::global::GlobalSettings;
 
     #[test]
     fn test_parsing_global_messages() {
