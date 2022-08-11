@@ -1,6 +1,9 @@
 # pirate-midi-rs
 
-
+[![Documentation](https://docs.rs/pirate-midi-rs/badge.svg)](https://docs.rs/pirate-midi-rs/latest/pirate_midi_rs/)
+[![Crates.io](https://img.shields.io/crates/v/pirate-midi-rs.svg)](https://crates.io/crates/pirate-midi-rs)
+[![License](https://img.shields.io/crates/l/pirate-midi-rs.svg)](https://github.com/beckler/pirate-midi-rs/blob/main/LICENSE)
+[![Test Status](https://github.com/beckler/pirate-midi-rs/workflows/release-please/badge.svg?event=push)](https://github.com/beckler/pirate-midi-rs/actions)
 
 ## Description
 
