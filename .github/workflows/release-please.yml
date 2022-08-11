@@ -37,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v3
+        id: release
         with:
           release-type: rust
           package-name: release-please-action
@@ -53,4 +54,5 @@ jobs:
       - uses: actions-rs/cargo@v1
         if: ${{ steps.release.outputs.release_created }}
         with:
-          command: publish -- --locked --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          command: publish
+          args: --locked --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
