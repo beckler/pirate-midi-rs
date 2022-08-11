@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/beckler/pirate-midi-rs/compare/v0.1.1...v1.0.0) (2022-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* cleaned up docs, moved models to messages
+
+### Bug Fixes
+
+* cleaned up docs, moved models to messages ([f0a5dd1](https://github.com/beckler/pirate-midi-rs/commit/f0a5dd17a47400b47779cf253f82b28fda899b5e))
+
 ## [0.1.1](https://github.com/beckler/pirate-midi-rs/compare/v0.1.0...v0.1.1) (2022-08-11)
 
 
