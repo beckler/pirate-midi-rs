@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{AuxMessages, MessageStack, Outputs};
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub enum Division {
     #[serde(rename = "1/4")]
     Quarter,

@@ -100,7 +100,7 @@ pub enum SendMode {
     Secondary,
 }
 
-#[derive(Deserialize_enum_str, Serialize_enum_str, Debug, Clone, PartialEq)]
+#[derive(Deserialize_enum_str, Serialize_enum_str, Debug, Clone, PartialEq, Eq)]
 pub enum Frequency {
     #[serde(rename = "1/4")]
     Quarter,
