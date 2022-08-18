@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/beckler/pirate-midi-rs/compare/v1.1.0...v1.1.1) (2022-08-18)
+
+
+### Bug Fixes
+
+* fixed clippy warnings ([af83227](https://github.com/beckler/pirate-midi-rs/commit/af832276b1550532d3bbe0c2a8ceb3b5f0630c93))
+
 ## [1.1.0](https://github.com/beckler/pirate-midi-rs/compare/v1.0.0...v1.1.0) (2022-08-18)
 
 
