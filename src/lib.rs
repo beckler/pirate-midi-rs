@@ -1,3 +1,4 @@
+use log::trace;
 use std::{fmt::Display, io::ErrorKind, time::Duration};
 
 pub use messages::*;
@@ -209,6 +210,7 @@ impl PirateMIDIDevice {
                         }
 
                         // transmit command
+                        trace!("tx: {i},{sub_cmd}~");
                         match &port.write(format!("{i},{sub_cmd}~").as_bytes()) {
                             Ok(_) => (),
                             Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
@@ -216,7 +218,7 @@ impl PirateMIDIDevice {
                         }
 
                         match port.read_to_string(&mut buffer) {
-                            Ok(_) => (),
+                            Ok(_) => trace!("rx: {}", buffer),
                             Err(e) if e.kind() == ErrorKind::TimedOut => (),
                             Err(e) if e.kind() == ErrorKind::BrokenPipe => {
                                 err = match &command {

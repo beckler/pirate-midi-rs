@@ -11,6 +11,7 @@ description = "send serial commands to pirate midi bridge devices"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde-enum-str = "0.2"
 serde_bytes = "0.11"
