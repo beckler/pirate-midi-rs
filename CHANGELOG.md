@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.3](https://github.com/beckler/pirate-midi-rs/compare/v1.1.2...v1.1.3) (2022-08-19)
+
+
+### Bug Fixes
+
+* added explicit DTR flag for windows ([0a4010b](https://github.com/beckler/pirate-midi-rs/commit/0a4010b7fe42d69135d9d97458b119e04d9ad37d))
+* fixed fmt issues ([134e7b8](https://github.com/beckler/pirate-midi-rs/commit/134e7b84cd22fbe23f809cc85c2879822d4f202a))
+
 ## [1.1.2](https://github.com/beckler/pirate-midi-rs/compare/v1.1.1...v1.1.2) (2022-08-19)
 
 
