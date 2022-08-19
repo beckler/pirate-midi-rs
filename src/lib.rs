@@ -218,7 +218,7 @@ impl PirateMIDIDevice {
                         }
 
                         match port.read_to_string(&mut buffer) {
-                            Ok(_) => trace!("rx: {}", buffer),
+                            Ok(_) => (),
                             Err(e) if e.kind() == ErrorKind::TimedOut => (),
                             Err(e) if e.kind() == ErrorKind::BrokenPipe => {
                                 err = match &command {
@@ -234,6 +234,8 @@ impl PirateMIDIDevice {
                             }
                             Err(e) => err = Some(Error::ReadError(e)),
                         };
+
+                        trace!("rx: {}", buffer);
                     }
 
                     // if we have a broken pipe error, report it here.
