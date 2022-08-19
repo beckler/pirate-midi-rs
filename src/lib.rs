@@ -205,7 +205,7 @@ impl PirateMIDIDevice {
                     // must explicitly set DTR flag for windows
                     match port.write_data_terminal_ready(true) {
                         Ok(_) => (),
-                        Err(err) => return Err(crate::Error::SerialError(err.description))
+                        Err(err) => return Err(crate::Error::SerialError(err.description)),
                     }
 
                     // turn our commands into a series of commands
