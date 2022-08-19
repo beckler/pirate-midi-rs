@@ -202,6 +202,12 @@ impl PirateMIDIDevice {
                     let mut buffer = String::new();
                     let mut err: Option<crate::Error> = None;
 
+                    // must explicitly set DTR flag for windows
+                    match port.write_data_terminal_ready(true) {
+                        Ok(_) => (),
+                        Err(err) => return Err(crate::Error::SerialError(err.description))
+                    }
+
                     // turn our commands into a series of commands
                     for (i, sub_cmd) in command.format().iter().enumerate() {
                         // clear buffer before we iterate
