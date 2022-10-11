@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/beckler/pirate-midi-rs/compare/v1.1.3...v1.1.4) (2022-10-11)
+
+
+### Bug Fixes
+
+* added serialize trait to check resposne ([d3203c2](https://github.com/beckler/pirate-midi-rs/commit/d3203c269c955b4f4bb3ac0b2290835996b413fa))
+
 ## [1.1.3](https://github.com/beckler/pirate-midi-rs/compare/v1.1.2...v1.1.3) (2022-08-19)
 
 
