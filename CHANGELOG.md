@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/beckler/pirate-midi-rs/compare/v1.1.4...v1.2.0) (2023-02-17)
+
+
+### Features
+
+* will now accept a serialport builder instead of just creating it's own ([8455242](https://github.com/beckler/pirate-midi-rs/commit/8455242bc5cd70460e9266462dbdc844231752b7))
+
 ## [1.1.4](https://github.com/beckler/pirate-midi-rs/compare/v1.1.3...v1.1.4) (2022-10-11)
 
 
