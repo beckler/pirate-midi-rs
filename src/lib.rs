@@ -124,12 +124,13 @@ impl Display for Command {
 }
 
 /// Represents a Pirate MIDI serial client
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PirateMIDIDevice {
     vid: u16,
     pid: u16,
     timeout: Duration,
     baud_rate: u32,
+    builder: Option<SerialPortBuilder>,
 }
 
 impl Default for PirateMIDIDevice {
@@ -139,6 +140,7 @@ impl Default for PirateMIDIDevice {
             pid: PRODUCT_ID,
             timeout: USB_TIMEOUT,
             baud_rate: USB_BAUD_RATE,
+            builder: None,
         }
     }
 }
@@ -157,6 +159,7 @@ impl PirateMIDIDevice {
             pid: self.pid,
             timeout: self.timeout,
             baud_rate: self.baud_rate,
+            builder: self.builder.clone(),
         }
     }
 
@@ -168,6 +171,7 @@ impl PirateMIDIDevice {
             pid,
             timeout: self.timeout,
             baud_rate: self.baud_rate,
+            builder: self.builder.clone(),
         }
     }
 
@@ -179,6 +183,7 @@ impl PirateMIDIDevice {
             pid: self.pid,
             timeout: self.timeout,
             baud_rate,
+            builder: self.builder.clone(),
         }
     }
 
@@ -190,12 +195,28 @@ impl PirateMIDIDevice {
             pid: self.pid,
             timeout,
             baud_rate: self.baud_rate,
+            builder: self.builder.clone(),
+        }
+    }
+
+    pub fn with_serialport_builder(&self, builder: SerialPortBuilder) -> PirateMIDIDevice {
+        Self {
+            vid: self.vid,
+            pid: self.pid,
+            timeout: self.timeout,
+            baud_rate: self.baud_rate,
+            builder: Some(builder),
         }
     }
 
     /// Send a specific command to a device via the current serial configuration
     pub fn send(&self, command: Command) -> Result<Response, Error> {
-        match self.find_device() {
+        let serial_device = match &self.builder {
+            Some(builder) => Ok(builder.clone()),
+            None => self.find_device(),
+        };
+
+        match serial_device {
             Ok(device) => match device.open() {
                 Ok(mut port) => {
                     // setting up output
