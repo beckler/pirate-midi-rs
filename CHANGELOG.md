@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/beckler/pirate-midi-rs/compare/v1.2.0...v1.2.1) (2023-03-04)
+
+
+### Bug Fixes
+
+* switching to a version of serialport that has a small custom change ([08ebe67](https://github.com/beckler/pirate-midi-rs/commit/08ebe6729be1b586d14851fec47a55e486ac9e69))
+
 ## [1.2.0](https://github.com/beckler/pirate-midi-rs/compare/v1.1.4...v1.2.0) (2023-02-17)
 
 
