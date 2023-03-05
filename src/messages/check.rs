@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CheckResponse {
-    #[serde(alias = "uId")]
+    #[serde(alias = "uId", alias = "uniqueDeviceId")]
     pub uid: String,
     pub device_model: String,
     pub firmware_version: String,
