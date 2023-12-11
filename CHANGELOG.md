@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/beckler/pirate-midi-rs/compare/v1.2.1...v1.3.0) (2023-12-11)
+
+
+### Features
+
+* added support for bridge os 2.0 commands ([37ce8aa](https://github.com/beckler/pirate-midi-rs/commit/37ce8aa786a1a2d3af98204850807253e51c4c77))
+
+
+### Bug Fixes
+
+* added uniqueDeviceId as an alias for uID ([8338313](https://github.com/beckler/pirate-midi-rs/commit/8338313689d8ff81bb1c69b158602f0483543b07))
+
 ## [1.2.1](https://github.com/beckler/pirate-midi-rs/compare/v1.2.0...v1.2.1) (2023-03-04)
 
 
