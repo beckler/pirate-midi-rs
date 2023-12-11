@@ -2,7 +2,7 @@ use log::trace;
 use std::{fmt::Display, io::ErrorKind, time::Duration};
 
 pub use messages::*;
-use serialport::{available_ports, SerialPortBuilder, SerialPortType};
+use serialport::{available_ports, SerialPort, SerialPortBuilder, SerialPortType};
 use thiserror::Error;
 
 pub mod messages;
@@ -211,6 +211,7 @@ impl PirateMIDIDevice {
 
     /// Send a specific command to a device via the current serial configuration
     pub fn send(&self, command: Command) -> Result<Response, Error> {
+        // attempt to find the device
         let serial_device = match &self.builder {
             Some(builder) => Ok(builder.clone()),
             None => self.find_device(),
@@ -219,56 +220,16 @@ impl PirateMIDIDevice {
         match serial_device {
             Ok(device) => match device.open() {
                 Ok(mut port) => {
-                    // setting up output
-                    let mut buffer = String::new();
-                    let mut err: Option<crate::Error> = None;
-
                     // must explicitly set DTR flag for windows
                     match port.write_data_terminal_ready(true) {
                         Ok(_) => (),
                         Err(err) => return Err(crate::Error::SerialError(err.description)),
                     }
 
-                    // turn our commands into a series of commands
-                    for (i, sub_cmd) in command.format().iter().enumerate() {
-                        // clear buffer before we iterate
-                        if !buffer.is_empty() {
-                            let _ = &buffer.clear();
-                        }
-
-                        // transmit command
-                        trace!("tx: {i},{sub_cmd}~");
-                        match &port.write(format!("{i},{sub_cmd}~").as_bytes()) {
-                            Ok(_) => (),
-                            Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
-                            Err(e) => eprintln!("{:?}", e),
-                        }
-
-                        match port.read_to_string(&mut buffer) {
-                            Ok(_) => (),
-                            Err(e) if e.kind() == ErrorKind::TimedOut => (),
-                            Err(e) if e.kind() == ErrorKind::BrokenPipe => {
-                                err = match &command {
-                                    Command::Control(sub) => match sub {
-                                        // these commands will break the pipe on purpose so don't log it as an error
-                                        ControlArgs::DeviceRestart
-                                        | ControlArgs::EnterBootloader
-                                        | ControlArgs::FactoryReset => None,
-                                        _ => Some(Error::BrokenPipeError(e)),
-                                    },
-                                    _ => Some(Error::BrokenPipeError(e)),
-                                };
-                            }
-                            Err(e) => err = Some(Error::ReadError(e)),
-                        };
-
-                        trace!("rx: {}", buffer);
-                    }
-
                     // if we have a broken pipe error, report it here.
-                    match err {
-                        Some(inner) => Err(inner),
-                        None => {
+                    match self.send_commands(&mut port, command.clone(), false) {
+                        Err(inner) => Err(inner),
+                        Ok(buffer) => {
                             // match our response to our request
                             let result = match command {
                                 Command::Check => {
@@ -315,6 +276,73 @@ impl PirateMIDIDevice {
             },
             Err(err) => Err(err),
         }
+    }
+
+    fn send_commands(
+        &self,
+        port: &mut Box<dyn SerialPort>,
+        command: Command,
+        force_backwards_compatable: bool,
+    ) -> Result<String, crate::Error> {
+        // setup output
+        let mut buffer = String::new();
+
+        // turn our commands into a series of commands
+        for (i, sub_cmd) in command.format().iter().enumerate() {
+            // clear buffer before we iterate
+            if !buffer.is_empty() {
+                let _ = &buffer.clear();
+            }
+
+            // transmit command
+            match force_backwards_compatable {
+                true => {
+                    // Support BridgeOS 1.0
+                    trace!("tx: {i},{sub_cmd}~");
+                    match port.write(format!("{i},{sub_cmd}~").as_bytes()) {
+                        Ok(_) => (),
+                        Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
+                        Err(e) => eprintln!("{:?}", e),
+                    }
+                }
+                _ => {
+                    // Support BridgeOS 2.0
+                    trace!("tx: {sub_cmd}~");
+                    match port.write(format!("{sub_cmd}~").as_bytes()) {
+                        Ok(_) => (),
+                        Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
+                        Err(e) => eprintln!("{:?}", e),
+                    }
+                }
+            }
+
+            match port.read_to_string(&mut buffer) {
+                Ok(_) => (),
+                Err(e) if e.kind() == ErrorKind::TimedOut => (),
+                Err(e) if e.kind() == ErrorKind::BrokenPipe => {
+                    match &command {
+                        Command::Control(sub) => match sub {
+                            // these commands will break the pipe on purpose so don't log it as an error
+                            ControlArgs::DeviceRestart
+                            | ControlArgs::EnterBootloader
+                            | ControlArgs::FactoryReset => (),
+                            _ => return Err(Error::BrokenPipeError(e)),
+                        },
+                        _ => return Err(Error::BrokenPipeError(e)),
+                    };
+                }
+                Err(e) => return Err(Error::ReadError(e)),
+            };
+
+            // attempt backwards compatability if it's not enabled already
+            if buffer == "no id number\n~\0" && !force_backwards_compatable {
+                return self.send_commands(port, command, true);
+            }
+        }
+
+        // return the buffer
+        trace!("rx: {}", buffer);
+        Ok(buffer)
     }
 
     fn find_device(&self) -> Result<SerialPortBuilder, Error> {
