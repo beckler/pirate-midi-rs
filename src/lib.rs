@@ -227,7 +227,7 @@ impl PirateMIDIDevice {
                     }
 
                     // if we have a broken pipe error, report it here.
-                    match self.send_commands(&mut port, command.clone(), false) {
+                    match send_commands(&mut port, command.clone(), false) {
                         Err(inner) => Err(inner),
                         Ok(buffer) => {
                             // match our response to our request
@@ -278,73 +278,6 @@ impl PirateMIDIDevice {
         }
     }
 
-    fn send_commands(
-        &self,
-        port: &mut Box<dyn SerialPort>,
-        command: Command,
-        force_backwards_compatable: bool,
-    ) -> Result<String, crate::Error> {
-        // setup output
-        let mut buffer = String::new();
-
-        // turn our commands into a series of commands
-        for (i, sub_cmd) in command.format().iter().enumerate() {
-            // clear buffer before we iterate
-            if !buffer.is_empty() {
-                let _ = &buffer.clear();
-            }
-
-            // transmit command
-            match force_backwards_compatable {
-                true => {
-                    // Support BridgeOS 1.0
-                    trace!("tx: {i},{sub_cmd}~");
-                    match port.write(format!("{i},{sub_cmd}~").as_bytes()) {
-                        Ok(_) => (),
-                        Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
-                        Err(e) => eprintln!("{:?}", e),
-                    }
-                }
-                _ => {
-                    // Support BridgeOS 2.0
-                    trace!("tx: {sub_cmd}~");
-                    match port.write(format!("{sub_cmd}~").as_bytes()) {
-                        Ok(_) => (),
-                        Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
-                        Err(e) => eprintln!("{:?}", e),
-                    }
-                }
-            }
-
-            match port.read_to_string(&mut buffer) {
-                Ok(_) => (),
-                Err(e) if e.kind() == ErrorKind::TimedOut => (),
-                Err(e) if e.kind() == ErrorKind::BrokenPipe => {
-                    match &command {
-                        Command::Control(sub) => match sub {
-                            // these commands will break the pipe on purpose so don't log it as an error
-                            ControlArgs::DeviceRestart
-                            | ControlArgs::EnterBootloader
-                            | ControlArgs::FactoryReset => (),
-                            _ => return Err(Error::BrokenPipeError(e)),
-                        },
-                        _ => return Err(Error::BrokenPipeError(e)),
-                    };
-                }
-                Err(e) => return Err(Error::ReadError(e)),
-            };
-
-            // attempt backwards compatability if it's not enabled already
-            if buffer == "no id number\n~\0" && !force_backwards_compatable {
-                return self.send_commands(port, command, true);
-            }
-        }
-
-        // return the buffer
-        trace!("rx: {}", buffer);
-        Ok(buffer)
-    }
-
     fn find_device(&self) -> Result<SerialPortBuilder, Error> {
         match available_ports() {
             Ok(ports) => {
@@ -370,6 +303,72 @@ fn trim_response(response: &str) -> String {
         .trim_start_matches(',')
         .trim_end_matches('~')
         .to_string()
+}
+
+fn send_commands(
+    port: &mut Box<dyn SerialPort>,
+    command: Command,
+    force_backwards_compatable: bool,
+) -> Result<String, crate::Error> {
+    // setup output
+    let mut buffer = String::new();
+
+    // turn our commands into a series of commands
+    for (i, sub_cmd) in command.format().iter().enumerate() {
+        // clear buffer before we iterate
+        if !buffer.is_empty() {
+            let _ = &buffer.clear();
+        }
+
+        // transmit command
+        match force_backwards_compatable {
+            true => {
+                // Support BridgeOS 1.0
+                trace!("tx: {i},{sub_cmd}~");
+                match port.write(format!("{i},{sub_cmd}~").as_bytes()) {
+                    Ok(_) => (),
+                    Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
+                    Err(e) => eprintln!("{:?}", e),
+                }
+            }
+            _ => {
+                // Support BridgeOS 2.0
+                trace!("tx: {sub_cmd}~");
+                match port.write(format!("{sub_cmd}~").as_bytes()) {
+                    Ok(_) => (),
+                    Err(ref e) if e.kind() == ErrorKind::TimedOut => (),
+                    Err(e) => eprintln!("{:?}", e),
+                }
+            }
+        }
+
+        match port.read_to_string(&mut buffer) {
+            Ok(_) => (),
+            Err(e) if e.kind() == ErrorKind::TimedOut => (),
+            Err(e) if e.kind() == ErrorKind::BrokenPipe => {
+                match &command {
+                    Command::Control(sub) => match sub {
+                        // these commands will break the pipe on purpose so don't log it as an error
+                        ControlArgs::DeviceRestart
+                        | ControlArgs::EnterBootloader
+                        | ControlArgs::FactoryReset => (),
+                        _ => return Err(Error::BrokenPipeError(e)),
+                    },
+                    _ => return Err(Error::BrokenPipeError(e)),
+                };
+            }
+            Err(e) => return Err(Error::ReadError(e)),
+        };
+
+        // attempt backwards compatability if it's not enabled already
+        if buffer == "no id number\n~\0" && !force_backwards_compatable {
+            return send_commands(port, command, true);
+        }
+    }
+
+    // return the buffer
+    trace!("rx: {}", buffer);
+    Ok(buffer)
 }
 
 #[derive(Error, Debug)]
