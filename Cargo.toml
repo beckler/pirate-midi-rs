@@ -17,6 +17,7 @@ serde-enum-str = "0.2"
 serde_bytes = "0.11"
 serde_json = "1.0"
 serde_with = "2.0"
+serde-aux = "4.3"
 serialport = { git = "https://github.com/serialport/serialport-rs", features = ["serde"] }
 thiserror = "1.0"
 

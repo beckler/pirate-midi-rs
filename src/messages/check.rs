@@ -1,14 +1,20 @@
 use serde::{Deserialize, Serialize};
+use serde_aux::prelude::*;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CheckResponse {
-    #[serde(alias = "uId", alias = "uniqueDeviceId")]
+    #[serde(
+        alias = "uId",
+        alias = "uniqueDeviceId",
+        deserialize_with = "deserialize_string_from_number"
+    )]
     pub uid: String,
     pub device_model: String,
     pub firmware_version: String,
     pub hardware_version: String,
     pub device_name: String,
+    #[serde(deserialize_with = "deserialize_string_from_number")]
     pub profile_id: String,
 }
 
