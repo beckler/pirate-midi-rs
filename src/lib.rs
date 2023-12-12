@@ -299,6 +299,8 @@ impl PirateMIDIDevice {
 
 fn trim_response(response: &str) -> String {
     response
+        .trim_start()
+        .trim_end()
         .trim_start_matches(char::is_numeric)
         .trim_start_matches(',')
         .trim_end_matches('~')
