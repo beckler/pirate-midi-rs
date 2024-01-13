@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/beckler/pirate-midi-rs/compare/v1.3.1...v1.4.0) (2024-01-13)
+
+
+### Features
+
+* added additional support for bridge 2.0 ([ff76c52](https://github.com/beckler/pirate-midi-rs/commit/ff76c5299bb8181e6ab225067e2475ba9cf06801))
+
+
+### Bug Fixes
+
+* added additional changes to support bridge OS 2.0 ([302c542](https://github.com/beckler/pirate-midi-rs/commit/302c5423c4811a1b5cc7c90ecb98e4ff81851515))
+* migrating to upstream serial port fix ([ef58525](https://github.com/beckler/pirate-midi-rs/commit/ef5852553a0c1c748e1d02dcc35e34201de1e5b8))
+
 ## [1.3.1](https://github.com/beckler/pirate-midi-rs/compare/v1.3.0...v1.3.1) (2023-12-11)
 
 
