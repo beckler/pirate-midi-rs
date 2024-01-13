@@ -1,4 +1,5 @@
 use log::trace;
+use serde::{Deserialize, Serialize};
 use std::{fmt::Display, io::ErrorKind, time::Duration};
 
 pub use messages::*;
@@ -50,9 +51,15 @@ impl Display for DataRequestArgs {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct ControlRequestArgs {
+    command: Vec<ControlArgs>,
+}
+
 /// Arguments for Control Requests (CTRL)
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub enum ControlArgs {
     BankUp,
     BankDown,
@@ -61,6 +68,21 @@ pub enum ControlArgs {
     DeviceRestart,
     EnterBootloader,
     FactoryReset,
+}
+
+impl ControlArgs {
+    pub fn format(&self, backwards_compatable: bool) -> String {
+        // support v1 formats
+        if backwards_compatable {
+            return format!("{}", self);
+        }
+
+        // v2 formats - don't love this, we should probably redo this at some point
+        serde_json::to_string(&ControlRequestArgs {
+            command: vec![self.clone()],
+        })
+        .unwrap()
+    }
 }
 
 impl Display for ControlArgs {
@@ -100,10 +122,10 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn format(&self) -> Vec<String> {
+    pub fn format(&self, backwards_compatable: bool) -> Vec<String> {
         match self {
             Command::Check | Command::Reset => vec![format!("{self}")],
-            Command::Control(args) => vec![format!("{self}"), format!("{args}")],
+            Command::Control(args) => vec![format!("{self}"), args.format(backwards_compatable)],
             Command::DataRequest(args) => vec![format!("{self}"), format!("{args}")],
             Command::DataTransmitRequest(args) => vec![format!("{self}"), format!("{args}")],
         }
@@ -240,11 +262,26 @@ impl PirateMIDIDevice {
                                         Err(err) => return Err(Error::JsonError(err)),
                                     }
                                 }
-                                Command::Control(_) => {
-                                    let result = if trim_response(&buffer) == "ok" {
-                                        Ok(())
-                                    } else {
-                                        Err(Error::CommandError(trim_response(&buffer)))
+                                Command::Control(args) => {
+                                    let result = match args {
+                                        // when entering bootloader, we expect a blank response or "ok"
+                                        ControlArgs::EnterBootloader => {
+                                            if trim_response(&buffer) == "ok"
+                                                || trim_response(&buffer).is_empty()
+                                            {
+                                                Ok(())
+                                            } else {
+                                                Err(Error::CommandError(trim_response(&buffer)))
+                                            }
+                                        }
+                                        // otherwise, we expect "ok" as a response
+                                        _ => {
+                                            if trim_response(&buffer) == "ok" {
+                                                Ok(())
+                                            } else {
+                                                Err(Error::CommandError(trim_response(&buffer)))
+                                            }
+                                        }
                                     };
                                     Response::Control(result)
                                 }
@@ -310,20 +347,20 @@ fn trim_response(response: &str) -> String {
 fn send_commands(
     port: &mut Box<dyn SerialPort>,
     command: Command,
-    force_backwards_compatable: bool,
+    backwards_compatable: bool,
 ) -> Result<String, crate::Error> {
     // setup output
     let mut buffer = String::new();
 
     // turn our commands into a series of commands
-    for (i, sub_cmd) in command.format().iter().enumerate() {
+    for (i, sub_cmd) in command.format(backwards_compatable).iter().enumerate() {
         // clear buffer before we iterate
         if !buffer.is_empty() {
             let _ = &buffer.clear();
         }
 
         // transmit command
-        match force_backwards_compatable {
+        match backwards_compatable {
             true => {
                 // Support BridgeOS 1.0
                 trace!("tx: {i},{sub_cmd}~");
@@ -363,7 +400,7 @@ fn send_commands(
         };
 
         // attempt backwards compatability if it's not enabled already
-        if buffer == "no id number\n~\0" && !force_backwards_compatable {
+        if buffer == "no id number\n~\0" && !backwards_compatable {
             return send_commands(port, command, true);
         }
     }
